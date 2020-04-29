@@ -57,27 +57,28 @@ vector<int> cal_pt_2_line_distance(vector<cv::Point3f> line_mat, vector<cv::Poin
     return dis_idx;
 }
 
-bool DynPointFinder::findOutliers(Frame *pFrame, cv::Mat &imGray)
+bool DynPointFinder::findOutliers(Frame *pFrame, cv::Mat &imGray, vector<float> &scaleFactors, int nlevels)
 {
-    int scale;
-    for (int level = 0; level < 8; ++level)
+    float scale;
+    vector<cv::Point2f> keypoints;
+    for (int level = 0; level < nlevels; ++level)
     {
         vector<cv::KeyPoint> &mkeypoints = pFrame->initmvKeys[level];
         int nkeypointsLevel = (int)mkeypoints.size();
         if (nkeypointsLevel == 0)
             continue;
         if (level != 0)
-            scale = level * 1.2;
+            scale = scaleFactors[level];
         else
             scale = 1;
         vector<cv::KeyPoint>::iterator keypoint = mkeypoints.begin();
-        if (level == 0 || level == 1 || level == 2)
-        {
-            mkeypoints.clear();
-        }
+        while(keypoint != mkeypoints.end())
+	            {
+		             keypoints.push_back(keypoint->pt * scale);
+	            }
 
-		//keypoint=mkeypoints.erase(keypoint);		
-    }       
+		//keypoint=mkeypoints.erase(keypoint);	
+    }	       
 
 }
 

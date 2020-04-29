@@ -115,6 +115,13 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int nLevels = fSettings["ORBextractor.nLevels"];
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
+    nlevels = nLevels;
+    scaleFactors.resize(nlevels);
+    scaleFactors[0]=1.0f;
+    for(int i=1; i<nlevels; i++)
+    {
+        scaleFactors[i]=scaleFactors[i-1]*fScaleFactor;
+    }
 
     mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
@@ -228,7 +235,7 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
         imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
 
     mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
-    dynpointfinder.findOutliers(&mCurrentFrame, mImGray);
+    dynpointfinder.findOutliers(&mCurrentFrame, mImGray, scaleFactors, nlevels);
     mCurrentFrame.finishFrame(mImGray, imDepth, mK);
     std::cout << mCurrentFrame.mvKeysUn.size() << std::endl;
 
