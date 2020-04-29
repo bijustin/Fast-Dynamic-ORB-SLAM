@@ -237,7 +237,7 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
     mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     dynpointfinder.findOutliers(&mCurrentFrame, mImGray, scaleFactors, nlevels);
     mCurrentFrame.finishFrame(mImGray, imDepth, mK);
-    std::cout << mCurrentFrame.mvKeysUn.size() << std::endl;
+    //std::cout << mCurrentFrame.mvKeysUn.size() << std::endl;
 
     Track();
 

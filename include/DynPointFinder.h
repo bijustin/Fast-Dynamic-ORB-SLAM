@@ -21,6 +21,5 @@ class DynPointFinder{
     Initializer* poseEstimator;
     public:
     bool findOutliers(Frame *pFrame, cv::Mat &imGray, vector<float> &scaleFactors, int nlevels);
-    bool findOutliers2(Frame *pFrame, cv::Mat &imGray);
 };
 }
