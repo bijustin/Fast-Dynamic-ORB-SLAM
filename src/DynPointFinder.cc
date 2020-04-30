@@ -21,7 +21,7 @@ int ratioTest(std::vector<std::vector<cv::DMatch>> &matches)
             // check distance ratio
             if ((*matchIterator)[0].distance /
                     (*matchIterator)[1].distance >
-                0.65)
+                0.3)
             {
                 matchIterator->clear(); // remove match
                 removed++;
@@ -99,36 +99,41 @@ cv::Mat ransacTest(
     }
     // Compute F matrix using RANSAC
     std::vector<uchar> inliers(points1.size(), 0);
+    //std::cout << points1.size() << std::endl;
     if (points1.size() > 0 && points2.size() > 0)
     {
         fundemental = cv::findFundamentalMat(
             cv::Mat(points1), cv::Mat(points2), // matching points
             inliers,                            // match status (inlier or outlier)
             CV_FM_RANSAC,                       // RANSAC method
-            3                    // distance to epipolar line
-            );                               // confidence probability
+            0.5,                    // distance to epipolar line
+            .99);                               // confidence probability
 
     }
-    std::cout <<fundemental << std::endl;
+    //std::cout <<fundemental << std::endl;
     return fundemental;
 }
 
 // Match feature points using symmetry test and RANSAC
 // returns fundemental matrix
-cv::Mat match(cv::Mat &image11, cv::Mat &image22)
+cv::Mat match(cv::Mat &image1, cv::Mat &image2)
 {
     // 1a. Detection of the SURF features
-    cv::Mat image1, image2;
-    image11.copyTo(image1);
-    image22.copyTo(image2);
-    cv::blur(image11, image1, cv::Size(10,10));
-    cv::blur(image22, image2, cv::Size(10,10));
+    
     std::vector<cv::DMatch> matches;
     std::vector<cv::KeyPoint> keypoints1;
     std::vector<cv::KeyPoint> keypoints2;
-    cv::Ptr<cv::ORB> detector = cv::ORB::create();
+    cv::Ptr<cv::ORB> detector = cv::ORB::create(1000);
     detector->detect(image1, keypoints1);
     detector->detect(image2, keypoints2);
+    cv::Mat show;
+    image1.copyTo(show);
+    for(int i = 0; i < keypoints1.size(); i++){
+
+            circle(show, cv::Point(keypoints1[i].pt.x, keypoints1[i].pt.y), 1, cv::Scalar(255,255,255), -1);
+    }
+    //cv::imshow("show", show);
+    //cv::waitKey(0);
     // 1b. Extraction of the SURF descriptors
     cv::Mat descriptors1, descriptors2;
     detector->compute(image1, keypoints1, descriptors1);
@@ -140,8 +145,9 @@ cv::Mat match(cv::Mat &image11, cv::Mat &image22)
     // from image 1 to image 2
     // based on k nearest neighbours (with k=2)
     cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::BRUTEFORCE_HAMMINGLUT);
-    std::vector<std::vector<cv::DMatch>> matches1;
-    matcher->knnMatch(descriptors1, descriptors2,
+    std::vector<cv::DMatch> matches1;
+    matcher->match(descriptors1, descriptors2, matches1);
+    /*matcher->knnMatch(descriptors1, descriptors2,
                       matches1, // vector of matches (up to 2 per entry)
                       2);       // return 2 nearest neighbours
     // from image 2 to image 1
@@ -158,9 +164,9 @@ cv::Mat match(cv::Mat &image11, cv::Mat &image22)
     removed = ratioTest(matches2);
     // 4. Remove non-symmetrical matches
     std::vector<cv::DMatch> symMatches;
-    symmetryTest(matches1, matches2, symMatches);
+    symmetryTest(matches1, matches2, symMatches);*/
     // 5. Validate matches using RANSAC
-    cv::Mat fundemental = ransacTest(symMatches,
+    cv::Mat fundemental = ransacTest(matches1,
                                      keypoints1, keypoints2, matches);
                                      
     // return the found fundemental matrix
@@ -214,7 +220,7 @@ vector<int> cal_epipolar_constraints(vector<cv::Point2f> prepoints, vector<cv::P
         double C = F.at<double>(2, 0)*prepoints[i].x + F.at<double>(2, 1)*prepoints[i].y + F.at<double>(2, 2);
         double dd = fabs(A*postpoints[i].x + B*postpoints[i].y + C) / sqrt(A*A + B*B);
         //std::cout << dd << std::endl;
-        if (dd>3)
+        if (dd>2)
         {
             dis_idx.push_back(0);
         }
@@ -263,7 +269,7 @@ void removePoints(vector<vector<cv::KeyPoint> > &initmvKeys, vector<int> &status
             removedpoints++;
         }
     }
-    std::cout << removedpoints << std::endl;
+    //std::cout << removedpoints << std::endl;
     removedpoints = 0;
     int totalsize = 0;
     for (int level = 0; level < nlevels; ++level){
@@ -292,7 +298,7 @@ void removePoints(vector<vector<cv::KeyPoint> > &initmvKeys, vector<int> &status
         startindex += endindex+1;
 
     }
-    std::cout << removedpoints << std::endl;
+    //std::cout << removedpoints << std::endl;
     /*for (int level = 0; level < nlevels; ++level)
     {
         vector<cv::KeyPoint> &mkeypoints = initmvKeys[level];
@@ -346,12 +352,12 @@ bool DynPointFinder::findOutliers(Frame *pFrame, cv::Mat &imGray, vector<float> 
     vector<int> state(keypoints.size(), 1);
     cv::Mat descripts;
     detector->compute(imGray, keypoints, descripts);
-    cv::Size winSize(15,15);
-    cv::TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 10, 0.03);
+    cv::Size winSize(22,22);
+    cv::TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03);
     vector<uchar> status;
     vector<float> err;
     vector<cv::Point2f> outpts;
-    cv::calcOpticalFlowPyrLK(imGray, prevImage, points, outpts, status, err, winSize, 2, termcrit, 0, 0.001);
+    cv::calcOpticalFlowPyrLK(imGray, prevImage, points, outpts, status, err, winSize, 5, termcrit, 0, 0.001);
     
 
     vector<cv::Point2f> p01op, p02op;
@@ -398,7 +404,6 @@ bool DynPointFinder::findOutliers2(Frame *pFrame, cv::Mat &imGray, vector<float>
         first = false;
         return false;
     }
-    cv::Ptr<cv::ORB> detector = cv::ORB::create();
     float scale;
     vector<cv::KeyPoint> keypoints;
     vector<cv::Point2f> points;
@@ -420,22 +425,34 @@ bool DynPointFinder::findOutliers2(Frame *pFrame, cv::Mat &imGray, vector<float>
             keypoint++;
         }
     }
+    cv::Mat image1, image2;
+    imGray.copyTo(image1);
+    prevImage.copyTo(image2);
+    cv::Size window(10,10);
+    //cv::blur(image1, image1, window);
+    //cv::blur(image2, image2, window);
     vector<int> state(keypoints.size(), 1);
-    cv::Mat F = match(imGray, prevImage);
+    cv::Mat F = match(image1, image2);
     if(F.empty()){
         prevFrame = Frame(*pFrame);
         imGray.copyTo(prevImage);
         return false;
     }
-
+    
     cv::Size winSize(15,15);
     cv::TermCriteria termcrit(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 10, 0.03);
     vector<uchar> status;
     vector<float> err;
     vector<cv::Point2f> outpts;
-    cv::calcOpticalFlowPyrLK(imGray, prevImage, points, outpts, status, err, winSize, 2, termcrit, 0, 0.001);
+    cv::calcOpticalFlowPyrLK(image1, image2, points, outpts, status, err, winSize, 2, termcrit, 0, 0.001);
+
     vector<cv::Point2f> p01op, p02op;
     int numFailed = 0;
+    float erravg = 0;
+    for(int i = 0; i < err.size(); i++){
+        erravg += err[i];
+    }
+    erravg = erravg;
     vector<int> indices;
     for (int i = 0; i < status.size(); i++)
 	{
@@ -451,27 +468,40 @@ bool DynPointFinder::findOutliers2(Frame *pFrame, cv::Mat &imGray, vector<float>
         }
 
 	}
-    //vector<cv::Point3f> epiline;
-    //computeCorrespondEpilines(p01op, 2, F, epiline);
-    //vector<int> idx1 = cal_pt_2_line_distance(epiline, p02op);
+     float avgmag = 0;
+    vector<float> mag;
+    for(int i = 0; i < p01op.size(); i++){
+        float diffx = p01op[i].x - p02op[i].x;
+        float diffy = p01op[i].y - p02op[i].y;
+        avgmag += sqrt(diffx*diffx+diffy*diffy);
+        mag.push_back(sqrt(diffx*diffx+diffy*diffy));
+    }
+    avgmag = avgmag/p01op.size();
+    float stdev = 0;
+    for(int i = 0; i < mag.size(); i++){
+        stdev += (mag[i] - avgmag)*(mag[i] - avgmag);
+    }
+    stdev = sqrt(stdev/mag.size());
+    std::cout << stdev << std::endl;
+    //std::cout << p01op.size() << std::endl;
     vector<int> idx1 = cal_epipolar_constraints(p01op, p02op, F);
     cv::Mat show;
     imGray.copyTo(show);
-    for(int i = 0; i < idx1.size(); i++){
-
-        if(idx1[i])
-            circle(show, cv::Point(p01op[i].x, p02op[i].y), 1, cv::Scalar(255,255,255), -1);
-        else
-            circle(show, cv::Point(p01op[i].x, p02op[i].y), 1, cv::Scalar(0,0,0), -1);
-    }
-    //cv::imshow("show", show);
-    //cv::waitKey(0);
+    vector<cv::Point2f> final1, final2;
+    
     for(int i = 0; i < p01op.size();i++){
-        if(idx1[i] == 0){
+        //if(idx1[i] == 0 || (abs(mag[i]-avgmag) > 2 && stdev < 3) || (abs(mag[i]-avgmag) > 3*stdev)){
+            if((abs(mag[i]-avgmag) > 1.5 && stdev < 3) || (abs(mag[i]-avgmag) > 2*stdev)){
             state[indices[i]] = 0;
         }
+        else{
+            final1.push_back(p01op[i]);
+            final2.push_back(p02op[i]);
+        }
     }
-
+    show = drawlines(show, final1, final2);
+    //cv::imshow("show", show);
+    //cv::waitKey(0);
 
    removePoints(pFrame->initmvKeys, state, nlevels);
     prevFrame = Frame(*pFrame);
