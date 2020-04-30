@@ -105,7 +105,7 @@ cv::Mat ransacTest(
             cv::Mat(points1), cv::Mat(points2), // matching points
             inliers,                            // match status (inlier or outlier)
             CV_FM_RANSAC,                       // RANSAC method
-            2                    // distance to epipolar line
+            3                    // distance to epipolar line
             );                               // confidence probability
 
     }
@@ -214,7 +214,7 @@ vector<int> cal_epipolar_constraints(vector<cv::Point2f> prepoints, vector<cv::P
         double C = F.at<double>(2, 0)*prepoints[i].x + F.at<double>(2, 1)*prepoints[i].y + F.at<double>(2, 2);
         double dd = fabs(A*postpoints[i].x + B*postpoints[i].y + C) / sqrt(A*A + B*B);
         //std::cout << dd << std::endl;
-        if (dd>0.5)
+        if (dd>3)
         {
             dis_idx.push_back(0);
         }
