@@ -3,6 +3,19 @@
 
 FAST Dynamic ORB-SLAM2 is a near real-time SLAM library that is built on [ORB-SLAM 2](https://github.com/raulmur/ORB_SLAM2) by Mur-Artal et al. It attempts to mitigate the error introduced by dynamic objects in the SLAM system on RGB-D cameras. See our other repository for related work: https://github.com/bijustin/YOLO-DynaSLAM
 
+Our paper is located here: https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/dynamic-orb-slam.pdf
+
+## Moving Object Detection
+In the project,  Firstly, ORB featurematches between two close frames are found. Secondly,the  fundamental  matrix  is  solved  using  the  RANSACalgorithm. The third step is calculating the epipolar lines(corresponding  to  the  outlier  matches)  in  the  secondframe,  and  calculate  the  distance  between  the  feature points  and  the  epipolar  lines.  If  the  distance  is  greaterthan some threshold, then we consider its corresponding feature point to be part of the moving object.
+
+Finally, we utilize optical flow's angle's relation to optimize our results.
+
+The following are the results using TUM dataset.  
+
+![avatar](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/indoor2.gif)
+
+![avatar](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/indoor3`.gif)
+
 # 1. License
 
 FAST Dynamic ORB-SLAM2 is based on ORB-SLAM2, and as such is released under a [GPLv3 license](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/License-gpl.txt). For a list of all code/library dependencies (and associated licenses), please see [Dependencies.md](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/Dependencies.md).
