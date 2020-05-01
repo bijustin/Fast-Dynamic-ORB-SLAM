@@ -5,6 +5,9 @@ FAST Dynamic ORB-SLAM2 is a near real-time SLAM library that is built on [ORB-SL
 
 Our paper is located here: https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/dynamic-orb-slam.pdf
 
+Our video is located here: https://www.youtube.com/watch?v=sazkFVVjITQ
+
+
 ## Moving Object Detection
 In the project,  Firstly, ORB featurematches between two close frames are found. Secondly,the  fundamental  matrix  is  solved  using  the  RANSACalgorithm. The third step is calculating the epipolar lines(corresponding  to  the  outlier  matches)  in  the  secondframe,  and  calculate  the  distance  between  the  feature points  and  the  epipolar  lines.  If  the  distance  is  greaterthan some threshold, then we consider its corresponding feature point to be part of the moving object.
 
