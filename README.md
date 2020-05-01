@@ -3,7 +3,6 @@
 
 FAST Dynamic ORB-SLAM2 is a near real-time SLAM library that is built on [ORB-SLAM 2](https://github.com/raulmur/ORB_SLAM2) by Mur-Artal et al. It attempts to mitigate the error introduced by dynamic objects in the SLAM system on RGB-D cameras. See our other repository for related work: https://github.com/bijustin/YOLO-DynaSLAM
 
-\
 # 1. License
 
 FAST Dynamic ORB-SLAM2 is based on ORB-SLAM2, and as such is released under a [GPLv3 license](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/License-gpl.txt). For a list of all code/library dependencies (and associated licenses), please see [Dependencies.md](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/Dependencies.md).
@@ -66,3 +65,7 @@ This will create **libORB_SLAM2.so**  at *lib* folder and the executable **rgbd_
   ```
   ./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUMX.yaml PATH_TO_SEQUENCE_FOLDER ASSOCIATIONS_FILE
   ```
+  
+  
+## Acknowledgements
+Our code builds on [ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) and [DynaSLAM](https://github.com/BertaBescos/DynaSLAM).
