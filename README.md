@@ -14,7 +14,7 @@ The following are the results using TUM dataset.
 
 ![avatar](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/indoor2.gif)
 
-![avatar](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/indoor3`.gif)
+![avatar](https://github.com/bijustin/Fast-Dynamic-ORB-SLAM/blob/master/indoor3.gif)
 
 # 1. License
 
