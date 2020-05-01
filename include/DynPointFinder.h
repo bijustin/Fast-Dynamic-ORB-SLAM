@@ -19,8 +19,10 @@ class DynPointFinder{
     vector<cv::Point2f> prevMatches;
     std::vector<int> mvIniMatches;
     Initializer* poseEstimator;
+    std::vector<cv::KeyPoint> prevKeypoints;
     public:
     bool findOutliers(Frame *pFrame, cv::Mat &imGray, vector<float> &scaleFactors, int nlevels);
     bool findOutliers2(Frame *pFrame, cv::Mat &imGray, vector<float> &scaleFactors, int nlevels);
+    cv::Mat match(vector<cv::KeyPoint> &Keypoints1,cv::Mat imgray1);
 };
 }

@@ -236,7 +236,7 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
         imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
 
     mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
-    dynpointfinder.findOutliers2(&mCurrentFrame, mImGray, scaleFactors, nlevels);
+        dynpointfinder.findOutliers(&mCurrentFrame, mImGray, scaleFactors, nlevels);
     mCurrentFrame.finishFrame(mImGray, imDepth, mK);
     //std::cout << mCurrentFrame.mvKeysUn.size() << std::endl;
 
